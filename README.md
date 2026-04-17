@@ -38,7 +38,10 @@ rm -f codapi.tar.gz
 3. Build the sample `ash` sandbox image:
 
 ```sh
-docker build --file sandboxes/ash/Dockerfile --tag codapi/ash:latest sandboxes/ash
+# optional: $DOCKER
+export DOCKER=docker
+
+$DOCKER build --file sandboxes/ash/Dockerfile --tag codapi/ash:latest sandboxes/ash
 ```
 
 4. Start the server:

@@ -139,6 +139,7 @@ var dockerCfg = &config.Config{
 
 func TestDockerRun(t *testing.T) {
 	logx.Mock()
+	t.Setenv("DOCKER", "docker")
 	commands := map[string]execy.CmdOut{
 		"docker run": {Stdout: "hello world", Stderr: "", Err: nil},
 	}
@@ -257,6 +258,7 @@ func TestDockerRun(t *testing.T) {
 
 func TestDockerExec(t *testing.T) {
 	logx.Mock()
+	t.Setenv("DOCKER", "docker")
 	commands := map[string]execy.CmdOut{
 		"docker exec": {Stdout: "hello world", Stderr: "", Err: nil},
 	}
@@ -287,6 +289,7 @@ func TestDockerExec(t *testing.T) {
 
 func TestDockerStop(t *testing.T) {
 	logx.Mock()
+	t.Setenv("DOCKER", "docker")
 	commands := map[string]execy.CmdOut{
 		"docker run":  {Stdout: "c958ff2", Stderr: "", Err: nil},
 		"docker exec": {Stdout: "hello", Stderr: "", Err: nil},

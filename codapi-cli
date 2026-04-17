@@ -2,6 +2,7 @@
 set -euo pipefail
 
 cd "$(dirname "$0")"
+docker=${DOCKER:-docker}
 sandboxes_dir="sandboxes"
 codapi_url="${CODAPI_URL:-localhost:1313}"
 
@@ -225,9 +226,9 @@ do_sandbox_rm() {
     fi
 
     # 1. Remove the container if it exists.
-    if docker ps -a -q --filter "name=$name" | grep -q .; then
+    if $docker ps -a -q --filter "name=$name" | grep -q .; then
         echo "Removing container '$name'..."
-        docker rm -f "$name"
+        $docker rm -f "$name"
     fi
 
     # 2. Remove the directory and its contents.

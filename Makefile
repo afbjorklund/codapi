@@ -1,5 +1,7 @@
 .PHONY: build
 
+DOCKER = docker
+
 # Development
 
 build_rev := "main"
@@ -35,11 +37,11 @@ run:
 image:
 	@[ -n "$(name)" ] || (echo "Syntax: make image name=<image-name>" >&2; exit 1)
 	@echo "Building image codapi/$(name)"
-	@docker build --file sandboxes/$(name)/Dockerfile --tag codapi/$(name):latest sandboxes/$(name)/
+	@$(DOCKER) build --file sandboxes/$(name)/Dockerfile --tag codapi/$(name):latest sandboxes/$(name)/
 	@echo "✓ codapi/$(name)"
 
 network:
-	docker network create --internal codapi
+	$(DOCKER) network create --internal codapi
 
 # Host OS
 

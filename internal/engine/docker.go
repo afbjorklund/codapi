@@ -31,12 +31,18 @@ const (
 type Docker struct {
 	cfg *config.Config
 	cmd *config.Command
+	exe string // docker
 }
 
 // NewDocker creates a new Docker engine for a specific command.
 func NewDocker(cfg *config.Config, sandbox, command string) Engine {
 	cmd := cfg.Commands[sandbox][command]
-	return &Docker{cfg, cmd}
+	exe := "docker"
+	// override docker with similar command
+	if env, ok := os.LookupEnv("DOCKER"); ok {
+		exe = env
+	}
+	return &Docker{cfg, cmd, exe}
 }
 
 // Exec executes the command and returns the output.
@@ -196,10 +202,10 @@ func (e *Docker) exec(box *config.Box, step *config.Step, req Request, dir strin
 	if step.Stdin {
 		// pass files to container from stdin
 		stdin := filesReader(files)
-		stdout, stderr, err = prog.RunStdin(stdin, req.ID, "docker", args...)
+		stdout, stderr, err = prog.RunStdin(stdin, req.ID, e.exe, args...)
 	} else {
 		// pass files to container from temp directory
-		stdout, stderr, err = prog.Run(req.ID, "docker", args...)
+		stdout, stderr, err = prog.Run(req.ID, e.exe, args...)
 	}
 
 	if err == nil {
@@ -213,7 +219,7 @@ func (e *Docker) exec(box *config.Box, step *config.Step, req Request, dir strin
 			// inside the container is not related to the "docker run" process,
 			// and will hang forever after the "docker run" process is killed
 			go func() {
-				err = dockerKill(req.ID)
+				err = dockerKill(e.exe, req.ID)
 				if err == nil {
 					logx.Debug("%s: docker kill ok", req.ID)
 				} else {
@@ -259,7 +265,7 @@ func (e *Docker) buildArgs(box *config.Box, step *config.Step, req Request, dir 
 
 	command := expandVars(step.Command, req.ID)
 	args = append(args, command...)
-	logx.Debug("%v", args)
+	logx.Debug("%s %v", e.exe, args)
 	return args
 }
 
@@ -345,9 +351,9 @@ func expandVars(command []string, name string) []string {
 }
 
 // dockerKill kills the container with the specified id/name.
-func dockerKill(id string) error {
+func dockerKill(exe, id string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), killTimeout)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "docker", "kill", id)
+	cmd := exec.CommandContext(ctx, exe, "kill", id)
 	return execy.Run(cmd)
 }
