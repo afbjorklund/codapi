@@ -187,6 +187,9 @@ func readConfig(path string) (*Config, error) {
 				return nil, err
 			}
 		}
+		if cfg.Docker.Tmp == "" {
+			cfg.Docker.Tmp = tempDir()
+		}
 	}
 
 	return cfg, err
@@ -240,6 +243,9 @@ func readBoxesFile(path string) (map[string]*Box, error) {
 
 	return boxes, err
 }
+
+// tempDir returns the directory to use for temporary files.
+var tempDir = os.TempDir
 
 // readCommands reads command configs from a set of JSON files in the given path.
 func readCommands(cfg *Config, path string, pattern string) (*Config, error) {
