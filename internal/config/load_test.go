@@ -40,3 +40,13 @@ func TestReadDocker(t *testing.T) {
 	be.Equal(t, cfg.Docker.Bin, "docker")
 	be.Equal(t, cfg.Docker.Tmp, temp)
 }
+
+func TestExpandTilde(t *testing.T) {
+	home := filepath.Join(t.TempDir(), "HOME")
+	userHomeDir = func() (string, error) { return home, nil }
+
+	tmp, err := expandTilde("~/tmp")
+	be.Err(t, err, nil)
+
+	be.Equal(t, tmp, home+"/tmp")
+}
