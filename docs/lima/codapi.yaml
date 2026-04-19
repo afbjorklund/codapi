@@ -19,7 +19,7 @@ provision:
   script: |
     #!/bin/sh
     command -v ca-certificates curl make unzip >/dev/null 2>&1 && exit 0
-    sudo apt update && sudo apt install -y ca-certificates curl make unzip
+    apt-get update && apt-get install -y ca-certificates curl make unzip
 - mode: system
   script: |
     #!/bin/bash
@@ -31,14 +31,13 @@ provision:
   script: |
     #!/bin/sh
     id codapi >/dev/null 2>&1 && exit 0
-    sudo useradd --groups docker --shell /usr/bin/bash --create-home --home /opt/codapi codapi
+    useradd --groups docker --shell /usr/bin/bash --create-home --home /opt/codapi codapi
 - mode: system
   script: |
     #!/bin/bash
     set -eux -o pipefail
     test -e /opt/codapi/codapi && exit 0
-    command -v jq || sudo apt install -y jq
-    sudo su - codapi
+    command -v jq || apt-get install -y jq
     cd /opt/codapi
     version=$(curl -fsSL https://api.github.com/repos/nalgeon/codapi/releases/latest | jq -r .tag_name | sed -e 's/v//')
     case $(uname -m) in
@@ -47,21 +46,21 @@ provision:
     esac
     curl -fL -o codapi.tar.gz "https://github.com/nalgeon/codapi/releases/download/v$version/codapi_${version}_linux_${arch}.tar.gz"
     tar xvzf codapi.tar.gz
+    chown -R codapi:codapi *
     rm -f codapi.tar.gz
 - mode: system
   script: |
     #!/bin/bash
     set -eux -o pipefail
-    sudo su - codapi
     cd /opt/codapi
     docker build --file sandboxes/ash/Dockerfile --tag codapi/ash:latest sandboxes/ash
 - mode: system
   script: |
     #!/bin/sh
-    sudo mv /opt/codapi/codapi.service /etc/systemd/system/
-    sudo chown root:root /etc/systemd/system/codapi.service
-    sudo systemctl enable codapi.service
-    sudo systemctl start codapi.service
+    mv /opt/codapi/codapi.service /etc/systemd/system/
+    chown root:root /etc/systemd/system/codapi.service
+    systemctl enable codapi.service
+    systemctl start codapi.service
 probes:
 - script: |
     #!/bin/bash
