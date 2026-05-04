@@ -195,6 +195,10 @@ func readConfig(path string) (*Config, error) {
 			if err != nil {
 				return nil, err
 			}
+			err = os.MkdirAll(dir, 0o755)
+			if err != nil {
+				return nil, err
+			}
 			cfg.Docker.Tmp = dir
 		}
 	}
