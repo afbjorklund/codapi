@@ -16,6 +16,7 @@ var semaphore *Semaphore
 
 var engineConstr = map[string]func(*config.Config, string, string) engine.Engine{
 	"docker": engine.NewDocker,
+	"kubernetes": engine.NewKubernetes,
 	"http":   engine.NewHTTP,
 }
 

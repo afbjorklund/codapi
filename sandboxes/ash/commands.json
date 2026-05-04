@@ -1,6 +1,6 @@
 {
     "run": {
-        "engine": "docker",
+        "engine": "kubernetes",
         "entry": "main.sh",
         "steps": [
             {
