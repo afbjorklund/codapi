@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -176,8 +177,16 @@ func readConfig(path string) (*Config, error) {
 	}
 	if cfg.Docker == nil {
 		cfg.Docker = &Docker{Bin: "docker"}
-	} else if cfg.Docker.Bin == "" {
-		cfg.Docker.Bin = "docker"
+	} else {
+		if cfg.Docker.Bin == "" {
+			cfg.Docker.Bin = "docker"
+		} else {
+			bin := cfg.Docker.Bin
+			_, err := exec.LookPath(bin)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	return cfg, err
